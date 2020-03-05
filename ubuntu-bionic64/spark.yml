@@ -1,0 +1,61 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+  - name: Add spark user
+    user:
+      name: "spark"
+      shell: /sbin/nologin
+    become: yes
+
+
+  - name: Downloading spark distrib
+    get_url:
+      url: https://archive.apache.org/dist/spark/spark-2.4.3/spark-2.4.3-bin-hadoop2.7.tgz
+      dest: /tmp/
+  
+  - name: Create a directory if it does not exist
+    file:
+      path: /opt/spark/2.4.3
+      state: directory
+      mode: '0755'
+
+  - name: Unarchive spark distrib
+    unarchive:
+      src: /tmp/spark-2.4.3-bin-hadoop2.7.tgz
+      dest: /opt/spark/2.4.3
+      extra_opts: [--strip-components=1]
+      remote_src: yes
+    become: yes
+
+  - name: Change owner spark folder
+    file:
+      path: /opt/spark/2.4.3
+      owner: "spark"
+      group: "spark"
+      recurse: yes
+    become: yes
+
+  - name: Create symlink to spark folder
+    file:
+      src: /opt/spark/2.4.3
+      dest: /opt/spark/current
+      owner: "spark"
+      group: "spark"
+      state: link
+    become: yes
+
+  - name: Creating work directory
+    file:
+      path: "/spark"
+      owner: "spark"
+      group: "spark"
+      state: directory
+      mode: '0740'
+    become: yes    
+
+  - name: Deleteing distrib file
+    file:
+      path: /tmp/spark_2.12-2.2.0.tgz
+      state: absent
