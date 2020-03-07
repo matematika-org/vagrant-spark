@@ -29,7 +29,7 @@
 
   - name: Installing openjdk
     package:
-      name: "default-jre"
+      name: "openjdk-8-jdk"
       state: latest
 
   - name: Installing scala
